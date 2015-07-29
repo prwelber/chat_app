@@ -13,12 +13,13 @@ var server = net.createServer(function(connection){
 	//var user = connection;
 	connections.push(userObj);
 	connection.setEncoding('utf8');
-	connection.write(chalk.red('Yooooo, client! Let\'s chat!\nFor a chat history, type "chat_history" (without double quotes). Otherwise, start chatting!\n'));
+	connection.write(chalk.bgRed('Yooooo, client! Let\'s chat!\n'));
+	connection.write(chalk.bgMagenta('For chat history, type "chat_history" (without quotes). If you want to yell, type "yell" and then your message\n'))
+	connection.write(chalk.bgYellow("You can chat in color by entering 'color yourColor' followed by your message. The options are red, green and yellow\n"));
+	connection.write(chalk.bgGreen("First enter a username in this format - 'username yourName'" + "\n"))
 	connection.write(chalk.bold('There are currently ' +connections.length+ " users logged in. \n"));
-	connection.write(chalk.green("First enter a username like this - 'username yourName'\n"))
 connection.on('data', function(clientInput){
 	var cleanInput = clientInput.trim();
-	var length = connections.length;
 	fs.readFile('./data.json', 'utf8', function(err,data){
 		var parsed = JSON.parse(data);
 		var chatData = cleanInput;
@@ -27,19 +28,36 @@ connection.on('data', function(clientInput){
 			clientName = chatData.substr(9, chatData.length+1);
 			console.log(clientName);
 			userObj.name = clientName;
-		}
-
-		////not working
-		if (chatData.substr(0,4) === "/yell"){
-			var chatData = chatData.toUpperCase();
+		} else if (chatData.substr(0,4) === "yell"){
+			var chatData = chatData.substr(5, chatData.length+1).toUpperCase();
+			console.log('chatData changed to uppercase')
 			for (var i = 0; i<connections.length; i++){
-				connections[i].sock.write(chatData + "\n");
+				connections[i].sock.write(userObj.name+" says: "+chatData + "\n");
+			}
+		} else if (chatData.substr(0,9) === "color red") {
+					var chatData = chalk.red(chatData.substr(10, chatData.length+1));
+					console.log(chalk.red('color changed to red'));
+					for (var i = 0; i<connections.length; i++){
+						connections[i].sock.write(userObj.name+(" says: ")+chatData+ "\n");
+					}
+		} else if (chatData.substr(0,11) === "color green") {
+					var chatData = chalk.green(chatData.substr(12, chatData.length+1));
+					console.log(chalk.green('color changed to green'));
+					for (var i = 0; i<connections.length; i++){
+						connections[i].sock.write(userObj.name+(" says: ")+chatData+ "\n");
+					}
+		} else if (chatData.substr(0,12) === "color yellow") {
+					var chatData = chalk.yellow(chatData.substr(13, chatData.length+1));
+					console.log(chalk.yellow('color changed to yellow'));
+					for (var i = 0; i<connections.length; i++){
+						connections[i].sock.write(userObj.name+(" says: ")+chatData+ "\n");
+					}
+		} else {
+			for (var i = 0; i<connections.length; i++){
+				connections[i].sock.write(userObj.name+" says: "+chatData + "\n");
 			}
 		}
 
-		for (var i = 0; i<connections.length; i++){
-			connections[i].sock.write(userObj.name+" Says: "+chatData + "\n");
-		}
 
 		console.log("someone chatted: "+chatData);
 		parsed.push(chatData);
@@ -56,38 +74,15 @@ connection.on('data', function(clientInput){
 	})//end of readFile
 
 
-
-
 })//end of on.data
-
-
-
 
 
 })//end of net.createServer
 
 
-
-
 server.listen(port,function(){
 	console.log('server listening on ' +port);
 })
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
