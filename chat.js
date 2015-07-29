@@ -16,7 +16,8 @@ var server = net.createServer(function(connection){
 	connection.write(chalk.bgRed('Yooooo, client! Let\'s chat!\n'));
 	connection.write(chalk.bgMagenta('For chat history, type "chat_history" (without quotes). If you want to yell, type "yell" and then your message\n'))
 	connection.write(chalk.bgYellow("You can chat in color by entering 'color yourColor' followed by your message. The options are red, green and yellow\n"));
-	connection.write(chalk.bgGreen("First enter a username in this format - 'username yourName'" + "\n"))
+	connection.write(chalk.bgGreen("But first, enter a username in this format - 'username yourName'" + "\n"))
+	connection.write(chalk.bgWhite("To see all users logged in, type 'list users'\n"))
 	connection.write(chalk.bold('There are currently ' +connections.length+ " users logged in. \n"));
 connection.on('data', function(clientInput){
 	var cleanInput = clientInput.trim();
@@ -52,6 +53,13 @@ connection.on('data', function(clientInput){
 					for (var i = 0; i<connections.length; i++){
 						connections[i].sock.write(userObj.name+(" says: ")+chatData+ "\n");
 					}
+		} else if (chatData.substr(0,10) === "list users"){
+					//var userString = connections.join().replace(/,/g, " ");
+					connections.forEach(function(e,i,a){
+						connection.write(e.name+" ");
+					})
+
+					//connection.write(userString);
 		} else {
 			for (var i = 0; i<connections.length; i++){
 				connections[i].sock.write(userObj.name+" says: "+chatData + "\n");
